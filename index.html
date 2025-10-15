@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4D-Swap Enterprise Platform - Demo</title>
+<style>
+:root {
+  --bg-primary: #0a0e14;
+  --accent-cyan: #00c2ff;
+  --accent-blue: #0ea5e9;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --text-primary: #e8eef6;
+  --text-secondary: #94a3b8;
+  --border: #1e293b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #0d1520 50%, var(--bg-primary) 100%);
+  color: var(--text-primary);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container { max-width: 1200px; margin: 0 auto; }
+
+.header {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  color: white;
+}
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.state-badge {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  background: #64748b;
+  color: white;
+  margin: 10px;
+}
+
+#log {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.log-entry { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🛡️ 4D-Swap Demo Platform</h1>
+    <p style="color: var(--text-secondary); margin: 10px 0;">DAC8-Compliant Atomic Settlement</p>
+    <div id="state" class="state-badge">IDLE</div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Execute Transaction</h2>
+    <button id="btn1" class="btn">Step 1: Generate Travel Rule Hash</button>
+    <button id="btn2" class="btn" disabled>Step 2: Generate Policy Digest</button>
+    <button id="btn3" class="btn" disabled>Step 3: Execute Atomic Swap</button>
+  </div>
+
+  <div class="card">
+    <h2>📊 Performance</h2>
+    <p>✅ Cost Reduction: <strong style="color: var(--success);">72%</strong></p>
+    <p>✅ Settlement Time: <strong>7.2 seconds</strong></p>
+    <p>✅ Success Rate: <strong>98.7%</strong></p>
+  </div>
+
+  <div class="card">
+    <h2>📝 Transaction Log</h2>
+    <div id="log"></div>
+  </div>
+</div>
+
+<script>
+let step = 0;
+
+function log(msg) {
+  const logEl = document.getElementById('log');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.textContent = new Date().toLocaleTimeString() + ' - ' + msg;
+  logEl.appendChild(entry);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function updateState(state) {
+  document.getElementById('state').textContent = state;
+  document.getElementById('state').style.background = 
+    state === 'SETTLED' ? '#10b981' : 
+    state === 'PROCESSING' ? '#f59e0b' : 
+    '#64748b';
+}
+
+document.getElementById('btn1').onclick = () => {
+  log('Generating Travel Rule Hash...');
+  setTimeout(() => {
+    log('✅ Hash generated: 0x4f3a...');
+    document.getElementById('btn1').disabled = true;
+    document.getElementById('btn2').disabled = false;
+    step = 1;
+  }, 1000);
+};
+
+document.getElementById('btn2').onclick = () => {
+  log('Generating Policy Digest...');
+  setTimeout(() => {
+    log('✅ Policy digest created');
+    document.getElementById('btn2').disabled = true;
+    document.getElementById('btn3').disabled = false;
+    step = 2;
+  }, 1000);
+};
+
+document.getElementById('btn3').onclick = () => {
+  updateState('PROCESSING');
+  log('Starting atomic swap...');
+  setTimeout(() => {
+    log('✅ Jurisdiction updated: SE → LU');
+    log('✅ Ownership transferred');
+    log('✅ DAC8 record created');
+    updateState('SETTLED');
+    log('=== TRANSACTION COMPLETE ===');
+    setTimeout(() => {
+      document.getElementById('btn1').disabled = false;
+      document.getElementById('btn2').disabled = true;
+      document.getElementById('btn3').disabled = true;
+      updateState('IDLE');
+    }, 3000);
+  }, 2000);
+};
+
+log('System initialized');
+log('Ready for demonstration');
+</script>
+
+</body>
+</html>
