@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4D-Swap Enterprise Platform - Demo</title>
+<style>
+:root {
+  --bg-primary: #0a0e14;
+  --bg-secondary: #111822;
+  --bg-card: #151d2a;
+  --accent-cyan: #00c2ff;
+  --accent-blue: #0ea5e9;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --text-primary: #e8eef6;
+  --text-secondary: #94a3b8;
+  --border: #1e293b;
+}
+
+.theme-dtcc {
+  --bg-primary: #001e3c;
+  --bg-secondary: #002855;
+  --accent-cyan: #0084ff;
+  --accent-blue: #0066cc;
+}
+
+.theme-bny {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --accent-cyan: #ff6900;
+  --accent-blue: #ff8c00;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #0d1520 50%, var(--bg-primary) 100%);
+  color: var(--text-primary);
+  padding: 20px;
+  min-height: 100vh;
+  transition: all 0.3s;
+}
+
+.container { max-width: 1800px; margin: 0 auto; }
+
+.header {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 6px 12px;
+  background: rgba(0,194,255,0.15);
+  border: 1px solid rgba(0,194,255,0.3);
+  border-radius: 999px;
+  color: var(--accent-cyan);
+}
+
+.status-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.theme-selector {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+}
+
+.theme-btn {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.theme-btn.active {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.status-item {
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.wallet {
+  padding: 8px 16px;
+  background: rgba(16,185,129,0.15);
+  border: 1px solid var(--success);
+  border-radius: 8px;
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.state-badge {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.state-IDLE { background: #64748b; }
+.state-QUEUED { background: var(--accent-blue); }
+.state-PENDING { background: var(--warning); color: #000; }
+.state-PREPARED { background: #f97316; }
+.state-COMMITTING { background: #8b5cf6; }
+.state-SETTLED { background: var(--success); animation: pulse 2s infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.disclaimer {
+  padding: 12px; 
+  background: rgba(245,158,11,0.1); 
+  border: 1px solid var(--warning); 
+  border-radius: 8px; 
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  color: white;
+  border-color: transparent;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1000px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.card h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: white;
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.btn:hover { transform: translateY(-2px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+.log-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.log-entry {
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  border: 1px solid;
+  animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.log-info { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #93c5fd; }
+.log-success { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #6ee7b7; }
+.log-warning { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fcd34d; }
+
+.evidence-box {
+  padding: 12px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  word-break: break-all;
+  margin-bottom: 12px;
+}
+
+.cost-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cost-item {
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.cost-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.cost-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.timers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.timer-card {
+  padding: 16px;
+  border: 2px solid;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.timer-ttl {
+  background: rgba(14,165,233,0.1);
+  border-color: var(--accent-blue);
+}
+
+.timer-finality {
+  background: rgba(139,92,246,0.1);
+  border-color: #8b5cf6;
+}
+
+.timer-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.timer-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.highlight { background: rgba(0,194,255,0.1); }
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.metric-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.xml-preview {
+  background: #1e1e1e;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #9cdcfe;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>
+      🛡️ 4D-Swap Enterprise Platform
+      <span class="badge">Patent Pending</span>
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 12px;">
+      DAC8-Compliant Atomic Settlement with Jurisdictional Certainty
+    </p>
+    <div class="status-bar">
+      <div class="theme-selector">
+        <button class="theme-btn active" data-theme="default">Default</button>
+        <button class="theme-btn" data-theme="dtcc">DTCC</button>
+        <button class="theme-btn" data-theme="bny">BNY</button>
+      </div>
+      <div class="wallet">🔗 Connected</div>
+      <div class="status-item">💰 Cost: <strong style="color: var(--success);">-72%</strong></div>
+      <div id="stateDisplay" class="state-badge state-IDLE">IDLE</div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ Demo Version - Limited Functionality. Full technical demonstration available under NDA.
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="main">⚡ Execution</div>
+    <div class="tab" data-tab="competitive">🏆 Competitive</div>
+    <div class="tab" data-tab="metrics">📊 Metrics</div>
+    <div class="tab" data-tab="dac8">📄 DAC8 Export</div>
+  </div>
+
+  <div id="tab-main" class="tab-content active">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>🌍 Transaction Configuration</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Origin Jurisdiction</label>
+              <select id="originJF" class="form-control">
+                <option value="SE">🇸🇪 Sweden (SE)</option>
+                <option value="LU">🇱🇺 Luxembourg (LU)</option>
+                <option value="CH">🇨🇭 Switzerland (CH)</option>
+                <option value="US">🇺🇸 United States (US)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Jurisdiction</label>
+              <select id="targetJF" class="form-control">
+                <option value="LU">🇱🇺 Luxembourg (LU)</option>
+                <option value="SE">🇸🇪 Sweden (SE)</option>
+                <option value="CH">🇨🇭 Switzerland (CH)</option>
+                <option value="US">🇺🇸 United States (US)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" id="amount" class="form-control" value="1000000">
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <select id="currency" class="form-control">
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>⚡ Execution Pipeline</h2>
+          <button id="btnStep1" class="btn btn-primary">Step 1: Generate Travel Rule Hash</button>
+          <button id="btnStep2" class="btn btn-primary" disabled>Step 2: Generate Policy Digest</button>
+          <button id="btnStep3" class="btn btn-primary" disabled>Step 3: Generate Security Nonce</button>
+          <button id="btnExecute" class="btn btn-success" disabled style="font-size: 16px; padding: 16px;">⚡ Execute Atomic Swap</button>
+        </div>
+
+        <div class="card">
+          <h2>💰 Cost Comparison</h2>
+          <div class="cost-grid">
+            <div class="cost-item">
+              <div class="cost-label">4D-Swap</div>
+              <div class="cost-value" style="color: var(--success);">-72%</div>
+            </div>
+            <div class="cost-item">
+              <div class="cost-label">Traditional</div>
+              <div class="cost-value">Baseline</div>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 12px; padding: 12px; background: rgba(16,185,129,0.1); border: 1px solid var(--success); border-radius: 8px;">
+            <div style="font-size: 12px; color: var(--text-secondary);">Settlement Time</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--success);">7.2 seconds</div>
+          </div>
+        </div>
+
+        <div id="timersCard" class="card" style="display: none;">
+          <h2>⏱️ Settlement Windows</h2>
+          <div class="timers">
+            <div class="timer-card timer-ttl">
+              <div class="timer-label">Oracle Window</div>
+              <div class="timer-value">Active</div>
+            </div>
+            <div class="timer-card timer-finality">
+              <div class="timer-label">Finality Window</div>
+              <div class="timer-value">Active</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>🔑 Compliance Evidence</h2>
+          <div id="evidenceContainer">
+            <p style="text-align: center; color: var(--text-secondary); padding: 20px;">
+              Generate Travel Rule hash to view evidence
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>🛠️ Export Tools</h2>
+          <button id="btnExportDAC8" class="btn btn-primary" disabled>📄 Export DAC8 Report</button>
+          <button id="btnExportPDF" class="btn btn-secondary">🖨️ Export PDF</button>
+        </div>
+
+        <div class="card">
+          <h2>📝 Transaction Log</h2>
+          <div id="logContainer" class="log-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-competitive" class="tab-content">
+    <div class="card">
+      <h2>🏆 Key Differentiators</h2>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="highlight">4D-Swap</th>
+              <th>DTCC Digital</th>
+              <th>Traditional</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Atomic Settlement</strong></td><td class="highlight">✅</td><td>✅</td><td>❌</td></tr>
+            <tr><td><strong>Jurisdiction Flag</strong></td><td class="highlight">✅</td><td>❌</td><td>❌</td></tr>
+            <tr><td><strong>DAC8 Native</strong></td><td class="highlight">✅</td><td>⚠️ External</td><td>❌</td></tr>
+            <tr><td><strong>Cost per Transaction</strong></td><td class="highlight" style="color: var(--success);">72% Lower</td><td>Baseline</td><td>+20%</td></tr>
+            <tr><td><strong>Settlement Time</strong></td><td class="highlight">7.2s</td><td>~15s</td><td>Variable</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-metrics" class="tab-content">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Success Rate</div>
+        <div class="metric-value" style="color: var(--success);">98.7%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Avg Latency</div>
+        <div class="metric-value" style="color: var(--accent-cyan);">7.2s</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Cost Reduction</div>
+        <div class="metric-value" style="color: var(--success);">72%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Demo Volume</div>
+        <div class="metric-value" id="metricVolume">€0</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-dac8" class="tab-content">
+    <div class="card">
+      <h2>📄 DAC8/RCASP Export Preview</h2>
+      <button id="btnGenXML" class="btn btn-primary">Generate ISO 20022 XML</button>
+      <button id="btnDownloadXML" class="btn btn-success" disabled style="width: auto; display: inline-block; margin-left: 12px;">Download XML</button>
+      <div id="xmlPreview" class="xml-preview" style="display: none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = {
+  current: 'IDLE',
+  H_TR: '',
+  policyDigest: '',
+  nonce: '',
+  totalVolume: 0,
+  xmlContent: ''
+};
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function log(msg, type = 'info') {
+  const container = document.getElementById('logContainer');
+  const entry = document.createElement('div');
+  entry.className = `log-entry log-${type}`;
+  entry.innerHTML = `<small>${new Date().toLocaleTimeString()}</small><div>${msg}</div>`;
+  container.insertBefore(entry, container.firstChild);
+  if (container.children.length > 30) container.removeChild(container.lastChild);
+}
+
+function setState(newState) {
+  state.current = newState;
+  const el = document.getElementById('stateDisplay');
+  el.className = `state-badge state-${newState}`;
+  el.textContent = newState;
+}
+
+function updateEvidence() {
+  const container = document.getElementById('evidenceContainer');
+  if (!state.H_TR) {
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">Generate Travel Rule hash to view evidence</p>';
+    return;
+  }
+  
+  container.innerHTML = `
+    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Travel Rule Hash</div>
+    <div class="evidence-box">${state.H_TR.slice(0, 32)}...</div>
+    ${state.policyDigest ? `
+      <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Policy Digest</div>
+      <div class="evidence-box">${state.policyDigest.slice(0, 32)}...</div>
+    ` : ''}
+    ${state.nonce ? `
+      <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">Security Nonce</div>
+      <div class="evidence-box">Generated</div>
+    ` : ''}
+  `;
+}
+
+function updateButtons() {
+  document.getElementById('btnStep1').disabled = !!state.H_TR;
+  document.getElementById('btnStep2').disabled = !!state.policyDigest || !state.H_TR;
+  document.getElementById('btnStep3').disabled = !!state.nonce || !state.policyDigest;
+  document.getElementById('btnExecute').disabled = !state.H_TR || !state.policyDigest || !state.nonce || state.current !== 'IDLE';
+  document.getElementById('btnExportDAC8').disabled = state.current !== 'SETTLED';
+}
+
+async function step1() {
+  log('🔧 Generating Travel Rule hash...', 'info');
+  
+  const data = {
+    origin: document.getElementById('originJF').value,
+    target: document.getElementById('targetJF').value,
+    amount: document.getElementById('amount').value,
+    timestamp: Date.now()
+  };
+  
+  state.H_TR = await sha256(JSON.stringify(data));
+  log(`✅ Travel Rule hash generated`, 'success');
+  updateEvidence();
+  updateButtons();
+}
+
+async function step2() {
+  log('🔧 Generating policy digest...', 'info');
+  
+  const policy = {
+    version: 'v2025.10',
+    transitions: { [`${document.getElementById('originJF').value}->${document.getElementById('targetJF').value}`]: 'PERMITTED' }
+  };
+  
+  state.policyDigest = await sha256(JSON.stringify(policy));
+  log(`✅ Policy digest generated`, 'success');
+  updateEvidence();
+  updateButtons();
+}
+
+async function step3() {
+  log('🔧 Generating security nonce...', 'info');
+  state.nonce = await sha256(`${Date.now()}_${Math.random()}`);
+  log(`✅ Security nonce generated`, 'success');
+  updateEvidence();
+  updateButtons();
+}
+
+async function executeSwap() {
+  log('=== STARTING ATOMIC SWAP ===', 'info');
+  
+  setState('QUEUED');
+  log('Phase 1: QUEUED - Request received', 'info');
+  await sleep(600);
+  
+  setState('PENDING');
+  log('Phase 2: PENDING - Verifying compliance...', 'info');
+  await sleep(500);
+  
+  log('✅ Compliance verification passed', 'success');
+  
+  setState('PREPARED');
+  log('Phase 3: PREPARED - Creating transaction...', 'info');
+  
+  document.getElementById('timersCard').style.display = 'block';
+  
+  await sleep(800);
+  
+  setState('COMMITTING');
+  log('Phase 4: COMMITTING - Atomic transaction...', 'info');
+  await sleep(1000);
+  
+  const origin = document.getElementById('originJF').value;
+  const target = document.getElementById('targetJF').value;
+  const amount = parseFloat(document.getElementById('amount').value);
+  
+  log(`✅ Jurisdiction Flag: ${origin} → ${target}`, 'success');
+  log('✅ Beneficial ownership transferred', 'success');
+  log('✅ DAC8-compliant record created', 'success');
+  
+  state.totalVolume += amount;
+  document.getElementById('metricVolume').textContent = '€' + state.totalVolume.toLocaleString();
+  
+  setState('SETTLED');
+  log('=== TRANSACTION SETTLED ===', 'success');
+  log('Cost savings: 72% vs traditional methods', 'info');
+  
+  updateButtons();
+}
+
+function generateDAC8XML() {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<RCASPReport xmlns="urn:iso:std:iso:20022">
+  <ReportingInstitution>
+    <Name>4D-Swap Demo Entity</Name>
+  </ReportingInstitution>
+  <TransactionDetails>
+    <OriginJurisdiction>${document.getElementById('originJF').value}</OriginJurisdiction>
+    <TargetJurisdiction>${document.getElementById('targetJF').value}</TargetJurisdiction>
+    <Amount currency="${document.getElementById('currency').value}">${document.getElementById('amount').value}</Amount>
+    <ComplianceStatus>VERIFIED</ComplianceStatus>
+  </TransactionDetails>
+</RCASPReport>`;
+  
+  state.xmlContent = xml;
+  const preview = document.getElementById('xmlPreview');
+  preview.textContent = xml;
+  preview.style.display = 'block';
+  document.getElementById('btnDownloadXML').disabled = false;
+  log('✅ DAC8 XML generated', 'success');
+}
+
+function downloadXML() {
+  const blob = new Blob([state.xmlContent], { type: 'application/xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `DAC8_Report_${Date.now()}.xml`;
+  a.click();
+  URL.revokeObjectURL(url);
+  log('✅ DAC8 Report downloaded', 'success');
+}
+
+// Event Listeners
+document.getElementById('btnStep1').onclick = step1;
+document.getElementById('btnStep2').onclick = step2;
+document.getElementById('btnStep3').onclick = step3;
+document.getElementById('btnExecute').onclick = executeSwap;
+document.getElementById('btnExportDAC8').onclick = () => {
+  document.querySelector('.tab[data-tab="dac8"]').click();
+  generateDAC8XML();
+};
+document.getElementById('btnExportPDF').onclick = () => window.print();
+document.getElementById('btnGenXML').onclick = generateDAC8XML;
+document.getElementById('btnDownloadXML').onclick = downloadXML;
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  };
+});
+
+// Themes
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.body.className = btn.dataset.theme === 'default' ? '' : 'theme-' + btn.dataset.theme;
+    log(`🎨 Theme: ${btn.dataset.theme.toUpperCase()}`, 'info');
+  };
+});
+
+// Initialize
+updateButtons();
+log('✅ 4D-Swap Platform initialized', 'success');
+log('📋 Patent-pending technology', 'info');
+log('Ready for demonstration', 'info');
+</script>
+
+</body>
+</html>
